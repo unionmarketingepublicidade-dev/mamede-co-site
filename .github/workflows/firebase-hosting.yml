@@ -1,0 +1,28 @@
+name: Publicar MAMEDE.CO no Firebase Hosting
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Obter código
+        uses: actions/checkout@v4
+      - name: Autenticar no Google Cloud sem chave
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/329137317747/locations/global/workloadIdentityPools/github-actions/providers/github
+          service_account: github-firebase-deploy@mamede-co.iam.gserviceaccount.com
+      - name: Preparar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Publicar no Firebase Hosting
+        run: npx --yes firebase-tools@15.35.0 deploy --only hosting --project mamede-co --non-interactive
